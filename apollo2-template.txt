@@ -1,0 +1,63 @@
+#!/bin/bash
+
+# Sample job template for Univa Grid Engine cluster (e.g. Apollo2 at Sussex University)
+# Python script replaces placeholders inside CURLY BRACKETS with values given
+# in the python script
+
+# --- Job and queue info -------------------------------------------------------
+#$ -N {JOBNAME}
+#$ -q {QUEUE}
+#$ -jc {JOBCLASS}
+#$ -cwd
+# --- Resource allocation with optimal MPI+OpenMP interaction ------------------
+#$ -pe openmpi {NUMSLOTS}
+#$ -l h_vmem={MEM_MB}M
+export OMP_NUM_THREADS={OMP}
+
+# --- E-mail notifications (optional) ------------------------------------------
+#     (add your e-mail and remove one #+space from the following 2 lines)
+# #$ -m bea
+# #$ -M aa2841@sussex.ac.uk
+
+
+module load OpenMPI/4.0.5-GCC-10.2.0
+
+#Environemnt Settings
+module load Anaconda3/2022.10
+source $HOME/conda_setup.sh
+conda activate cobaya
+export COBAYA_PACKAGES_PATH=$HOME/.cobaya
+
+cd {ROOTDIR}
+
+echo Running on host `hostname`
+echo Time is `date`
+echo Directory is `pwd`
+echo Job ID is $JOB_ID
+echo Hostfile `cat $PE_HOSTFILE`
+
+# Run command
+
+{COMMAND}
+
+
+## Set things to be used by the python script,
+## which extracts text from here with ##XX: ...##
+
+## Command to use for each run in the batch
+##RUN: mpirun -n $NSLOTS {PROGRAM} {INI} > ./scripts/{INIBASE}.log 2>&1 ##
+
+## Commands to submit and delete
+##DEFAULT_qsub: qsub##
+##DEFAULT_qdel: qdel##
+
+## These defaults specific to Sussex apollo2
+## Note that MEM_MB is per core not per node
+## You can only use NUMSLOTS - no control over slots per node
+
+
+##DEFAULT_queue: parallel.q ##
+##DEFAULT_jobclass: test.long ##
+##DEFAULT_mem_mb: 4096 ##
+
+
